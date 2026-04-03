@@ -1,16 +1,9 @@
 import { NextResponse } from "next/server";
 import { exec } from "child_process";
 import { promisify } from "util";
-import path from "path";
 import { checkRateLimit } from "@/lib/rateLimit";
 
 const execAsync = promisify(exec);
-
-// Path to the downloaded yt-dlp binary
-// In a true production app, yt-dlp is usually installed on the system instead of using a node_module binary,
-// but for this Node/Next.js environment locally we use the automatically bundled one.
-const binaryName = process.platform === 'win32' ? 'yt-dlp.exe' : 'yt-dlp';
-const ytDlpPath = path.join(process.cwd(), 'node_modules', 'youtube-dl-exec', 'bin', binaryName);
 
 export async function GET(request: Request) {
   const rateLimitResponse = checkRateLimit(request);
@@ -34,7 +27,7 @@ export async function GET(request: Request) {
 
   try {
     // We use a high maxBuffer because the JSON payload for youtube manifests can be very large
-    const { stdout } = await execAsync(`"${ytDlpPath}" --dump-json --no-warnings --no-check-certificates "${url}"`, { maxBuffer: 1024 * 1024 * 10 });
+    const { stdout } = await execAsync(`yt-dlp --dump-json --no-warnings --no-check-certificates "${url}"`, { maxBuffer: 1024 * 1024 * 10 });
     const info = JSON.parse(stdout);
 
     return NextResponse.json({
