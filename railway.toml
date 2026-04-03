@@ -3,6 +3,8 @@ builder = "railpack"
 
 [build.packages]
 python3 = "*"
+yt-dlp = "*"
 
 [packages]
 python3 = "*"
+yt-dlp = "*"
