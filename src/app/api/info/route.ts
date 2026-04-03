@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
-import { exec } from "child_process";
-import { promisify } from "util";
+import youtubedl from "youtube-dl-exec";
 import { checkRateLimit } from "@/lib/rateLimit";
-
-const execAsync = promisify(exec);
 
 export async function GET(request: Request) {
   const rateLimitResponse = checkRateLimit(request);
@@ -26,9 +23,11 @@ export async function GET(request: Request) {
   }
 
   try {
-    // We use a high maxBuffer because the JSON payload for youtube manifests can be very large
-    const { stdout } = await execAsync(`yt-dlp --dump-json --no-warnings --no-check-certificates "${url}"`, { maxBuffer: 1024 * 1024 * 10 });
-    const info = JSON.parse(stdout);
+    const info = await youtubedl(url, {
+      dumpJson: true,
+      noWarnings: true,
+      noCheckCertificates: true,
+    });
 
     return NextResponse.json({
       title: info.title || "Social Media Video",
